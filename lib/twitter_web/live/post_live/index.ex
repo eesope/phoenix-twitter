@@ -7,7 +7,9 @@ defmodule TwitterWeb.PostLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket), do: Timeline.subscribe()
-    {:ok, stream(socket, :posts, Timeline.list_posts()), temporary_assigns: [posts: []]}
+    {:ok, stream(socket, :posts, Timeline.list_posts(), at: 0), temporary_assigns: [posts: []]}
+    # stream -> ordered map
+    # temporary option to renew change
   end
 
   @impl true
@@ -35,22 +37,27 @@ defmodule TwitterWeb.PostLive.Index do
 
   @impl true
   def handle_info({TwitterWeb.PostLive.FormComponent, {:saved, post}}, socket) do
-    {:noreply, stream_insert(socket, :posts, post)}
+    {:noreply, stream_insert(socket, :posts, post, at: 0)}
   end
 
   def handle_info({:post_created, post}, socket) do
-    {:noreply, update(socket, :post, fn posts-> [post | posts] end)}
+    socket = stream_delete(socket, :posts, post.id)
+    {:noreply, stream_insert(socket, :posts, post, at: 0)}
   end
 
   def handle_info({:post_updated, post}, socket) do
-    {:noreply, update(socket, :post, fn posts-> [post | posts] end)}
+    socket = stream_delete(socket, :posts, post.id)
+    {:noreply, stream_insert(socket, :posts, post)}
+  end
+
+  def handle_info({:post_deleted, post}, socket) do
+    {:noreply, stream_delete(socket, :posts, post.id)}
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     post = Timeline.get_post!(id)
     {:ok, _} = Timeline.delete_post(post)
-
     {:noreply, stream_delete(socket, :posts, post)}
   end
 end

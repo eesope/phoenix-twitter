@@ -6,7 +6,7 @@ defmodule Twitter.Timeline.Post do
 
   schema "posts" do
     field :body, :string
-    field :username, :string, default: "domingo"
+    field :username, :string, default: "h_simpson"
     field :likes_count, :integer, default: 0
     field :reposts_count, :integer, default: 0
 

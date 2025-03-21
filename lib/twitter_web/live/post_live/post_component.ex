@@ -21,12 +21,14 @@ defmodule TwitterWeb.PostLive.PostComponent do
             </a>
           </div>
           <div class="flex-1">
+            <a href="#" phx-click="repost" phx-target={@myself}>
             <strong>🔁</strong>
             <%= @post.reposts_count %>
+          </a>
           </div>
           <div class="mt-2 flex justify-end space-x-4">
             <.link phx-click={JS.push("delete", value: %{id: @post.id}) |> hide("##{@post.id}")}
-              data-confirm="Are you sure for deleting this post?">
+              data-confirm="Are you sure you want to delete this post?">
               🗑️
             </.link>
           </div>
@@ -34,5 +36,16 @@ defmodule TwitterWeb.PostLive.PostComponent do
       </div>
     </div>
     """
+  end
+
+    @impl true
+  def handle_event("like",_params, socket) do
+    updated_post = Twitter.Timeline.inc_likes(socket.assigns.post)
+    {:noreply, assign(socket, post: updated_post)}
+  end
+
+  def handle_event("repost",_params, socket) do
+  updated_post = Twitter.Timeline.inc_repost(socket.assigns.post)
+  {:noreply, assign(socket, post: updated_post)}
   end
 end

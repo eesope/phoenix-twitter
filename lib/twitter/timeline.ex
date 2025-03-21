@@ -1,6 +1,6 @@
 defmodule Twitter.Timeline do
   @moduledoc """
-  The Timeline context. CRUD module for POST.
+  The Timeline context. CRUD module for the post.
   """
 
   import Ecto.Query, warn: false
@@ -18,7 +18,7 @@ defmodule Twitter.Timeline do
 
   """
   def list_posts do # look through db
-  # add ecto query inside db (Repo)
+    # add ecto query inside db (Repo)
     Repo.all(from p in Post, order_by: [desc: p.id ])
   end
 
@@ -26,6 +26,13 @@ defmodule Twitter.Timeline do
     {1, [post]} =
       from(p in Post, where: p.id == ^id, select: p)
     |> Repo.update_all(inc: [likes_count: 1])
+    broadcast({:ok, post}, :post_updated)
+  end
+
+  def inc_repost(%Post{id: id}) do
+    {1, [post]} =
+      from(p in Post, where: p.id == ^id, select: p)
+    |> Repo.update_all(inc: [reposts_count: 1])
     broadcast({:ok, post}, :post_updated)
   end
 
@@ -100,6 +107,7 @@ defmodule Twitter.Timeline do
   """
   def delete_post(%Post{} = post) do
     Repo.delete(post)
+    |> broadcast(:post_deleted)
   end
 
   @doc """
@@ -124,5 +132,4 @@ defmodule Twitter.Timeline do
     Phoenix.PubSub.broadcast(Twitter.PubSub, "posts", {event, post})
     {:ok, post}
   end
-
 end

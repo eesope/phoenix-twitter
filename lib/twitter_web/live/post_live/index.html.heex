@@ -9,8 +9,8 @@
 
 <!-- // ui render -->
 
-<div id="posts" phx-update="prepend" class="space-y-4 p-4">
-  <%= for {id, post} <- @streams.posts do %>
+<div id="posts" phx-update="stream" class="space-y-4 p-4">
+  <%= for {_id, post} <- @streams.posts do %>
     <.live_component module={TwitterWeb.PostLive.PostComponent} id={post.id} post={post} />
     <% end %>
 </div>
