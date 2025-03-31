@@ -25,8 +25,7 @@ psql -U postgres -d your_database_name
 SELECT * FROM posts;
 ```
 
-
+---
 ## Further tasks
-
 - Change nickname
 - Run in production [deployment guides](https://hexdocs.pm/phoenix/deployment.html)

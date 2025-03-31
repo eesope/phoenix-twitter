@@ -64,3 +64,12 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+config :twitter, Twitter.Mailer,
+  adapter: Swoosh.Adapters.SMTP,
+  relay: "smtp.google.com",
+  username: "report_noreply",
+  password: "pa33w02d",
+  tls: :always,
+  port: 587,
+  retries: 2
